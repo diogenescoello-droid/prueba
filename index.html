@@ -873,7 +873,7 @@ select,input{
               <h3>Seguimiento documental consolidado CZ5</h3>
               <p>Lectura agregada para toma de decisiones: socialización, entrega documental, validación técnica, devoluciones, revisión y faltantes críticos.</p>
             </div>
-            <div class="docseg-version">v0.6.6 · documental + riesgo zonal</div>
+            <div class="docseg-version">v0.6.7 · documental + riesgo zonal</div>
           </div>
 
           <div class="docseg-kpis">
@@ -931,7 +931,7 @@ select,input{
             </div>
           </div>
 
-          <div class="docseg-foot">Fuente: MATRIZSEGUIM-EL NIÑO(2)(8).xlsx · hoja Consolidado + paquete PDF digitalizado + estructura F03 · integración v0.6.6 sobre BASE 01.</div>
+          <div class="docseg-foot">Fuente: MATRIZSEGUIM-EL NIÑO(2)(8).xlsx · hoja Consolidado + paquete PDF digitalizado + estructura F03 · integración v0.6.7 sobre BASE 01.</div>
         </div>
       </div>
 
@@ -947,11 +947,11 @@ select,input{
               <h3>Entramado de datos para riesgo, respuesta, fortalecimiento y monitoreo</h3>
               <p>Esta versión activa ficha cantonal dinámica: al tocar una provincia o cantón se recalculan los indicadores superiores y el panel derecho cambia según el tema activo. Si se enciende Elementos operativos, la capa se filtra por el territorio seleccionado. Los valores provienen de extracción automática inicial desde PDF/DOCX digitalizados y deben validarse técnicamente por CZ5.</p>
             </div>
-            <div id="riskzStatus" class="riskz-status warn">v0.6.6 · Fortalecimiento legible por cantón + Plan/Kobo</div>
+            <div id="riskzStatus" class="riskz-status warn">v0.6.7 · Corrección botones JS + Fortalecimiento legible por cantón + Plan/Kobo</div>
           </div>
 
           <div class="riskz-source">
-            <strong>Fuente primaria de análisis · versión visible v0.6.6</strong>
+            <strong>Fuente primaria de análisis · versión visible v0.6.7</strong>
             Cartografía local sin API/token. Capas provinciales, cantonales y elementos F03 con control de encendido/apagado; selección territorial con KPI contextual, ficha cantonal dinámica, semáforos preliminares y enlace relativo al plan cantonal. En Análisis se refuerza F03: puntos/geopoint, líneas/geotrace y polígonos/geoshape para sitios críticos, tramos, rutas, drenajes y zonas de afectación. Los registros Kobo reales se conectarán en la siguiente iteración.
           </div>
 
@@ -1010,7 +1010,7 @@ select,input{
               </div>
               <div id="riskzMap"></div>
               <div class="riskz-province-grid" id="riskzProvinceGrid"></div>
-              <div class="footer-note" id="riskzMapNote">v0.6.6: fortalecimiento prioriza lectura del plan legalizado por cantón; Kobo sensibilización queda como bloque independiente hasta conectar registros reales.</div>
+              <div class="footer-note" id="riskzMapNote">v0.6.7: fortalecimiento prioriza lectura del plan legalizado por cantón; Kobo sensibilización queda como bloque independiente hasta conectar registros reales.</div>
             </div>
 
             <aside class="riskz-panel" id="riskzDetailPanel">
@@ -2359,8 +2359,7 @@ const RiskZonalCZ5 = (function(){
           const s = f && f.fortalecimiento_sensibilizacion ? f.fortalecimiento_sensibilizacion : {};
           return norm(s.estado_registro || '') && norm(s.estado_registro || '') !== 'PENDIENTE';
         });
-        const prioridadFort = activeCanton && fichas[0] ? prioridadFortalecimientoFicha(fichas[0]).replace(' · ', '
-') : ('A:'+sems.ROJO+' M:'+sems.AMARILLO+' B:'+sems.VERDE);
+        const prioridadFort = activeCanton && fichas[0] ? prioridadFortalecimientoFicha(fichas[0]).replace(' · ', ' / ') : ('A:'+sems.ROJO+' M:'+sems.AMARILLO+' B:'+sems.VERDE);
         const estadoPlan = activeCanton && fichas[0] ? (fichas[0].estado_documental ? 'PDF' : 'Pend.') : (fichas.length ? 'PDF' : 'Pend.');
         setText('riskzKpiAlto', prioridadFort);
         setText('riskzKpiMedio', lineasFort || 'Pend.');
