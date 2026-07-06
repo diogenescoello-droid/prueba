@@ -1,5 +1,7 @@
-# SNGR-CZ5-ENOS v0.6.7
+# SNGR-CZ5-ENOS v0.6.9
 
-Corrección técnica inmediata: se reparó un error de sintaxis JavaScript que detenía la ejecución de los botones del módulo Riesgo Zonal.
+Versión enfocada en cartografía F03: conteo de elementos, proyección de puntos, líneas y polígonos, burbuja de datos al pasar el cursor y semáforo provincial preliminar.
 
-Se mantiene la arquitectura y funcionalidad de v0.6.6: Fortalecimiento legible por cantón, ficha dinámica y criterios departamentales.
+Elementos cartográficos actuales: 3.
+
+Esta versión mantiene la arquitectura base y no reemplaza datos oficiales.
