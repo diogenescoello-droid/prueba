@@ -873,7 +873,7 @@ select,input{
               <h3>Seguimiento documental consolidado CZ5</h3>
               <p>Lectura agregada para toma de decisiones: socialización, entrega documental, validación técnica, devoluciones, revisión y faltantes críticos.</p>
             </div>
-            <div class="docseg-version">v0.6.4 · documental + riesgo zonal</div>
+            <div class="docseg-version">v0.6.5 · documental + riesgo zonal</div>
           </div>
 
           <div class="docseg-kpis">
@@ -931,7 +931,7 @@ select,input{
             </div>
           </div>
 
-          <div class="docseg-foot">Fuente: MATRIZSEGUIM-EL NIÑO(2)(8).xlsx · hoja Consolidado + paquete PDF digitalizado + estructura F03 · integración v0.6.4 sobre BASE 01.</div>
+          <div class="docseg-foot">Fuente: MATRIZSEGUIM-EL NIÑO(2)(8).xlsx · hoja Consolidado + paquete PDF digitalizado + estructura F03 · integración v0.6.5 sobre BASE 01.</div>
         </div>
       </div>
 
@@ -947,11 +947,11 @@ select,input{
               <h3>Entramado de datos para riesgo, respuesta, fortalecimiento y monitoreo</h3>
               <p>Esta versión activa ficha cantonal dinámica: al tocar una provincia o cantón se recalculan los indicadores superiores y el panel derecho cambia según el tema activo. Si se enciende Elementos operativos, la capa se filtra por el territorio seleccionado. Los valores provienen de extracción automática inicial desde PDF/DOCX digitalizados y deben validarse técnicamente por CZ5.</p>
             </div>
-            <div id="riskzStatus" class="riskz-status warn">v0.6.4 · Análisis técnico + Cartografía F03</div>
+            <div id="riskzStatus" class="riskz-status warn">v0.6.5 · Fortalecimiento dinámico + Análisis/F03</div>
           </div>
 
           <div class="riskz-source">
-            <strong>Fuente primaria de análisis · versión visible v0.6.4</strong>
+            <strong>Fuente primaria de análisis · versión visible v0.6.5</strong>
             Cartografía local sin API/token. Capas provinciales, cantonales y elementos F03 con control de encendido/apagado; selección territorial con KPI contextual, ficha cantonal dinámica, semáforos preliminares y enlace relativo al plan cantonal. En Análisis se refuerza F03: puntos/geopoint, líneas/geotrace y polígonos/geoshape para sitios críticos, tramos, rutas, drenajes y zonas de afectación. Los registros Kobo reales se conectarán en la siguiente iteración.
           </div>
 
@@ -1010,7 +1010,7 @@ select,input{
               </div>
               <div id="riskzMap"></div>
               <div class="riskz-province-grid" id="riskzProvinceGrid"></div>
-              <div class="footer-note" id="riskzMapNote">v0.6.4: análisis técnico cantonal, cartografía F03 y dashboard actualizado.</div>
+              <div class="footer-note" id="riskzMapNote">v0.6.5: fortalecimiento cantonal dinámico con lectura Kobo + plan legalizado; análisis técnico y cartografía F03 se mantienen.</div>
             </div>
 
             <aside class="riskz-panel" id="riskzDetailPanel">
@@ -2745,13 +2745,60 @@ const RiskZonalCZ5 = (function(){
     return fallback || 'Pendiente';
   }
 
+  function accionesFortalecimientoDesdePlan(ficha){
+    const acciones = [];
+    const base = (ficha && ficha.acciones_prioritarias) ? ficha.acciones_prioritarias : [];
+    base.forEach(function(a){
+      const txt = String(a || '');
+      const n = norm(txt);
+      if(n.indexOf('CAPACIT') >= 0 || n.indexOf('SOCIAL') >= 0 || n.indexOf('SIMUL') >= 0 || n.indexOf('FORTALEC') >= 0 || n.indexOf('ACTUALIZ') >= 0 || n.indexOf('COMITE') >= 0 || n.indexOf('PROTOC') >= 0 || n.indexOf('UGR') >= 0 || n.indexOf('COE') >= 0){ acciones.push(txt); }
+    });
+    if(!acciones.length && ficha && ficha.fortalecimiento && ficha.fortalecimiento.length){
+      ficha.fortalecimiento.forEach(function(x){ acciones.push('Reforzar: ' + x); });
+    }
+    return acciones;
+  }
+
+  function brechasFortalecimientoDesdePlan(ficha){
+    const brechas = [];
+    (ficha && ficha.brechas ? ficha.brechas : []).forEach(function(b){
+      const nombre = typeof b === 'string' ? b : (b.nombre || b.descripcion || '');
+      const crit = typeof b === 'object' ? (b.criticidad || '') : '';
+      const n = norm(nombre + ' ' + crit);
+      if(n.indexOf('CAPAC') >= 0 || n.indexOf('SOCIAL') >= 0 || n.indexOf('COMUN') >= 0 || n.indexOf('COE') >= 0 || n.indexOf('UGR') >= 0 || n.indexOf('PLAN') >= 0 || n.indexOf('PROTOC') >= 0 || n.indexOf('SIMUL') >= 0 || n.indexOf('COORD') >= 0){
+        brechas.push(nombre + (crit ? ' (' + crit + ')' : ''));
+      }
+    });
+    if(!brechas.length) return listaBrechasFicha(ficha).slice(0,4);
+    return brechas;
+  }
+
+  function prioridadFortalecimientoFicha(ficha){
+    if(!ficha) return 'Pendiente';
+    const pct = Number(ficha.porcentaje_concordancia || 0);
+    const fort = (ficha.fortalecimiento || []).length;
+    const brechas = brechasFortalecimientoDesdePlan(ficha).length;
+    if(pct && pct < 60) return 'Alta · baja concordancia documental y requiere acompañamiento';
+    if(brechas >= 3 || fort >= 4) return 'Alta · múltiples líneas de fortalecimiento identificadas';
+    if(brechas >= 1 || fort >= 2) return 'Media · requiere seguimiento técnico';
+    if(fort >= 1) return 'Baja/Media · mantener monitoreo';
+    return 'Pendiente de validación';
+  }
+
   function fortalecimientoSensHtml(ficha, modoCompleto){
     const s = ficha && ficha.fortalecimiento_sensibilizacion ? ficha.fortalecimiento_sensibilizacion : {};
     const temas = valueOrPendiente(s.tematicas_campania && s.tematicas_campania.length ? s.tematicas_campania : s.tematicas_esperadas);
     const publico = valueOrPendiente(s.publico_objetivo && s.publico_objetivo.length ? s.publico_objetivo : s.publico_objetivo_esperado);
     const canales = valueOrPendiente(s.canales_difusion && s.canales_difusion.length ? s.canales_difusion : s.canales_esperados);
-    let html = '<div class="riskz-fort-box"><h4>Fortalecimiento · sensibilización comunitaria ENOS</h4>';
-    html += '<p class="muted-text">Bloque alineado al formulario Kobo de Fortalecimiento: permite verificar si el GAD sensibilizó a la población, a quién llegó, dónde, por qué canales, si conformó comités comunitarios y cuál es el estado de ejecución.</p>';
+    const lineasPlan = ficha ? (ficha.fortalecimiento || []) : [];
+    const accionesPlan = accionesFortalecimientoDesdePlan(ficha);
+    const brechasPlan = brechasFortalecimientoDesdePlan(ficha);
+    const prioridad = prioridadFortalecimientoFicha(ficha);
+    const canton = ficha ? ficha.canton : 'cantón seleccionado';
+    let html = '<div class="riskz-fort-box"><h4>Fortalecimiento · ficha cantonal dinámica</h4>';
+    html += '<p class="muted-text">La lectura se divide en dos fuentes: <strong>Kobo Fortalecimiento</strong> para sensibilización/comités y <strong>plan legalizado</strong> para líneas de acompañamiento CZ5. Si Kobo aún no tiene registros, la ficha igual cambia por cantón con los datos extraídos del plan.</p>';
+
+    html += '<div class="riskz-fort-box" style="margin-top:12px"><h4>Kobo · sensibilización comunitaria ENOS</h4>';
     html += '<div class="riskz-fort-grid">'
       + fortItem('Estado del registro Kobo', valueOrPendiente(s.estado_registro))
       + fortItem('Acciones mínimas realizadas', valueOrPendiente(s.acciones_minimas_sensibilizacion))
@@ -2763,14 +2810,26 @@ const RiskZonalCZ5 = (function(){
       + fortItem('Representante / teléfono', valueOrPendiente([s.representante_comite, s.telefono_representante].filter(function(x){return x && x !== 'Pendiente';})))
       + fortItem('Canales de difusión', canales)
       + fortItem('Estado de ejecución', valueOrPendiente(s.estado_ejecucion))
-      + fortItem('Lectura CZ5', valueOrPendiente(s.lectura_fortalecimiento))
-      + fortItem('Siguiente acción CZ5', valueOrPendiente(s.siguiente_accion_cz5))
       + '</div>';
     if(s.url_kobo) html += '<div class="riskz-actions"><a class="btn primary" href="'+escapeAttrLocal(s.url_kobo)+'" target="_blank" rel="noopener">Abrir Kobo sensibilización</a></div>';
     html += '</div>';
+
+    html += '<div class="riskz-fort-box" style="margin-top:12px"><h4>Plan legalizado · acompañamiento de fortalecimiento para '+escapeHtmlLocal(canton)+'</h4>';
+    html += '<div class="riskz-fort-grid">'
+      + fortItemHtml('Líneas de fortalecimiento identificadas', listValue(lineasPlan, 'Pendiente de extracción'))
+      + fortItemHtml('Brechas para acompañamiento CZ5', listValue(brechasPlan, 'Pendiente de validación'))
+      + fortItemHtml('Acciones del plan vinculadas', listValue(accionesPlan, 'Pendiente de extracción específica'))
+      + fortItemHtml('Prioridad de acompañamiento', prioridad)
+      + fortItemHtml('Estado documental del plan', ficha ? valueOrPendiente(ficha.estado_documental) : 'Pendiente')
+      + fortItemHtml('Condición técnica', ficha ? valueOrPendiente(ficha.condicion_tecnica) : 'Pendiente')
+      + fortItemHtml('Monitoreo requerido', listValue(ficha ? ficha.monitoreo : []))
+      + fortItemHtml('Lectura CZ5', valueOrPendiente(s.lectura_fortalecimiento))
+      + fortItemHtml('Siguiente acción CZ5', valueOrPendiente(s.siguiente_accion_cz5))
+      + '</div>';
+    html += '<div class="riskz-actions"><button class="btn white" type="button" onclick="RiskZonalCZ5.showFortalecimientoSchema()">Ver criterios Fortalecimiento</button></div>';
+    html += '</div></div>';
     return html;
   }
-
 
   const F03_KOBO_URL = 'https://ee.kobotoolbox.org/x/BMR6RaE1';
 
@@ -3232,6 +3291,21 @@ const RiskZonalCZ5 = (function(){
   }
 
 
+  function showFortalecimientoSchema(){
+    const panel = document.getElementById('riskzDetailPanel');
+    if(!panel) return;
+    panel.innerHTML = '<h3>Estructura requerida · Fortalecimiento</h3>'
+      + '<p class="muted-text">Campos mínimos para que el botón Fortalecimiento responda por cantón con datos verificables desde Kobo y desde el plan legalizado.</p>'
+      + '<div class="riskz-detail-grid">'
+      + detailItem('Kobo sensibilización', 'Acciones mínimas, temáticas de campaña, público objetivo, sectores/comunidades, ubicación, comités comunitarios, canales y estado de ejecución.')
+      + detailItem('Plan legalizado', 'Líneas de fortalecimiento descritas en el plan, asistencia técnica requerida, actualización del plan, simulacros, capacitación, COE/UGR y protocolos.')
+      + detailItem('Brechas de acompañamiento CZ5', 'Faltantes de socialización, organización comunitaria, planificación, coordinación, evidencia, georreferenciación o seguimiento.')
+      + detailItem('Priorización', 'Alta, media, baja o pendiente según brechas, líneas de fortalecimiento y condición documental del cantón.')
+      + detailItem('Salida esperada', 'Agenda de acompañamiento CZ5 por cantón, con acción sugerida y enlace al plan cantonal.')
+      + '</div><div class="riskz-actions"><button class="btn white" type="button" onclick="RiskZonalCZ5.renderPanel()">Volver a la ficha</button></div>';
+  }
+
+
   function updateKpiLabelsAnalisis(){
     setText('riskzKpiAltoLabel', 'Riesgo preliminar');
     setText('riskzKpiMedioLabel', 'Amenazas');
@@ -3256,7 +3330,7 @@ const RiskZonalCZ5 = (function(){
     setText('riskzKpiAmenazaLabel', 'Kobo Respuesta');
   }
 
-  return {init:init, selectProvincia:selectProvincia, clearSelection:clearSelection, showSchema:showSchema, renderPanel:renderPanel, setLayerMode:setLayerMode, setElementFilter:setElementFilter, ensureElementsForSelection:ensureElementsForSelection, zoomAll:zoomAll, zoomContinental:zoomContinental, openArcGIS:openArcGIS, openRespuestaKobo:openRespuestaKobo, showRespuestaSchema:showRespuestaSchema, openF03Kobo:openF03Kobo, showAnalisisSchema:showAnalisisSchema, renderPanel:renderPanel};
+  return {init:init, selectProvincia:selectProvincia, clearSelection:clearSelection, showSchema:showSchema, renderPanel:renderPanel, setLayerMode:setLayerMode, setElementFilter:setElementFilter, ensureElementsForSelection:ensureElementsForSelection, zoomAll:zoomAll, zoomContinental:zoomContinental, openArcGIS:openArcGIS, openRespuestaKobo:openRespuestaKobo, showRespuestaSchema:showRespuestaSchema, showFortalecimientoSchema:showFortalecimientoSchema, openF03Kobo:openF03Kobo, showAnalisisSchema:showAnalisisSchema, renderPanel:renderPanel};
 })();
 
 (function(){
