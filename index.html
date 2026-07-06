@@ -873,7 +873,7 @@ select,input{
               <h3>Seguimiento documental consolidado CZ5</h3>
               <p>Lectura agregada para toma de decisiones: socialización, entrega documental, validación técnica, devoluciones, revisión y faltantes críticos.</p>
             </div>
-            <div class="docseg-version">v0.6.5 · documental + riesgo zonal</div>
+            <div class="docseg-version">v0.6.6 · documental + riesgo zonal</div>
           </div>
 
           <div class="docseg-kpis">
@@ -931,7 +931,7 @@ select,input{
             </div>
           </div>
 
-          <div class="docseg-foot">Fuente: MATRIZSEGUIM-EL NIÑO(2)(8).xlsx · hoja Consolidado + paquete PDF digitalizado + estructura F03 · integración v0.6.5 sobre BASE 01.</div>
+          <div class="docseg-foot">Fuente: MATRIZSEGUIM-EL NIÑO(2)(8).xlsx · hoja Consolidado + paquete PDF digitalizado + estructura F03 · integración v0.6.6 sobre BASE 01.</div>
         </div>
       </div>
 
@@ -947,11 +947,11 @@ select,input{
               <h3>Entramado de datos para riesgo, respuesta, fortalecimiento y monitoreo</h3>
               <p>Esta versión activa ficha cantonal dinámica: al tocar una provincia o cantón se recalculan los indicadores superiores y el panel derecho cambia según el tema activo. Si se enciende Elementos operativos, la capa se filtra por el territorio seleccionado. Los valores provienen de extracción automática inicial desde PDF/DOCX digitalizados y deben validarse técnicamente por CZ5.</p>
             </div>
-            <div id="riskzStatus" class="riskz-status warn">v0.6.5 · Fortalecimiento dinámico + Análisis/F03</div>
+            <div id="riskzStatus" class="riskz-status warn">v0.6.6 · Fortalecimiento legible por cantón + Plan/Kobo</div>
           </div>
 
           <div class="riskz-source">
-            <strong>Fuente primaria de análisis · versión visible v0.6.5</strong>
+            <strong>Fuente primaria de análisis · versión visible v0.6.6</strong>
             Cartografía local sin API/token. Capas provinciales, cantonales y elementos F03 con control de encendido/apagado; selección territorial con KPI contextual, ficha cantonal dinámica, semáforos preliminares y enlace relativo al plan cantonal. En Análisis se refuerza F03: puntos/geopoint, líneas/geotrace y polígonos/geoshape para sitios críticos, tramos, rutas, drenajes y zonas de afectación. Los registros Kobo reales se conectarán en la siguiente iteración.
           </div>
 
@@ -1010,7 +1010,7 @@ select,input{
               </div>
               <div id="riskzMap"></div>
               <div class="riskz-province-grid" id="riskzProvinceGrid"></div>
-              <div class="footer-note" id="riskzMapNote">v0.6.5: fortalecimiento cantonal dinámico con lectura Kobo + plan legalizado; análisis técnico y cartografía F03 se mantienen.</div>
+              <div class="footer-note" id="riskzMapNote">v0.6.6: fortalecimiento prioriza lectura del plan legalizado por cantón; Kobo sensibilización queda como bloque independiente hasta conectar registros reales.</div>
             </div>
 
             <aside class="riskz-panel" id="riskzDetailPanel">
@@ -2320,6 +2320,8 @@ const RiskZonalCZ5 = (function(){
       updateKpiLabelsRespuesta();
     }else if(activeComponente === 'ANALISIS'){
       updateKpiLabelsAnalisis();
+    }else if(activeComponente === 'FORTALECIMIENTO'){
+      updateKpiLabelsFortalecimiento();
     }else{
       updateKpiLabelsDefault();
     }
@@ -2350,6 +2352,21 @@ const RiskZonalCZ5 = (function(){
         setText('riskzKpiBajo', f03.total ? f03.total : 'Pend.');
         setText('riskzKpiBrechas', f03.total ? ('P'+f03.puntos+' L'+f03.lineas+' A'+f03.poligonos) : '0');
         setText('riskzKpiAmenaza', activeCanton && fichas[0] ? confianzaDatoFicha(fichas[0]) : 'Prelim.');
+      }else if(activeComponente === 'FORTALECIMIENTO'){
+        const lineasFort = fichas.reduce(function(acc,f){ return acc + ((f.fortalecimiento || []).length); }, 0);
+        const brechasFort = fichas.reduce(function(acc,f){ return acc + brechasFortalecimientoDesdePlan(f).length; }, 0);
+        const koboConectado = fichas.some(function(f){
+          const s = f && f.fortalecimiento_sensibilizacion ? f.fortalecimiento_sensibilizacion : {};
+          return norm(s.estado_registro || '') && norm(s.estado_registro || '') !== 'PENDIENTE';
+        });
+        const prioridadFort = activeCanton && fichas[0] ? prioridadFortalecimientoFicha(fichas[0]).replace(' · ', '
+') : ('A:'+sems.ROJO+' M:'+sems.AMARILLO+' B:'+sems.VERDE);
+        const estadoPlan = activeCanton && fichas[0] ? (fichas[0].estado_documental ? 'PDF' : 'Pend.') : (fichas.length ? 'PDF' : 'Pend.');
+        setText('riskzKpiAlto', prioridadFort);
+        setText('riskzKpiMedio', lineasFort || 'Pend.');
+        setText('riskzKpiBajo', brechasFort || 'Pend.');
+        setText('riskzKpiBrechas', koboConectado ? 'Con datos' : 'Sin registros');
+        setText('riskzKpiAmenaza', estadoPlan);
       }else{
         setText('riskzKpiAlto', sems.ROJO);
         setText('riskzKpiMedio', sems.AMARILLO);
@@ -2795,38 +2812,42 @@ const RiskZonalCZ5 = (function(){
     const brechasPlan = brechasFortalecimientoDesdePlan(ficha);
     const prioridad = prioridadFortalecimientoFicha(ficha);
     const canton = ficha ? ficha.canton : 'cantón seleccionado';
-    let html = '<div class="riskz-fort-box"><h4>Fortalecimiento · ficha cantonal dinámica</h4>';
-    html += '<p class="muted-text">La lectura se divide en dos fuentes: <strong>Kobo Fortalecimiento</strong> para sensibilización/comités y <strong>plan legalizado</strong> para líneas de acompañamiento CZ5. Si Kobo aún no tiene registros, la ficha igual cambia por cantón con los datos extraídos del plan.</p>';
+    const koboConectado = norm(s.estado_registro || '') && norm(s.estado_registro || '') !== 'PENDIENTE';
+    const koboEstadoLectura = koboConectado ? valueOrPendiente(s.estado_registro) : 'Sin registros Kobo conectados para este cantón';
 
-    html += '<div class="riskz-fort-box" style="margin-top:12px"><h4>Kobo · sensibilización comunitaria ENOS</h4>';
-    html += '<div class="riskz-fort-grid">'
-      + fortItem('Estado del registro Kobo', valueOrPendiente(s.estado_registro))
-      + fortItem('Acciones mínimas realizadas', valueOrPendiente(s.acciones_minimas_sensibilizacion))
-      + fortItem('Temáticas de campaña', temas)
-      + fortItem('Público objetivo', publico)
-      + fortItem('Sectores/comunidades sensibilizadas', valueOrPendiente(s.sectores_sensibilizados))
-      + fortItem('Ubicaciones georreferenciadas', valueOrPendiente(s.ubicaciones_georreferenciadas))
-      + fortItem('Comité comunitario GR', valueOrPendiente(s.comite_comunitario_gestion_riesgos))
-      + fortItem('Representante / teléfono', valueOrPendiente([s.representante_comite, s.telefono_representante].filter(function(x){return x && x !== 'Pendiente';})))
-      + fortItem('Canales de difusión', canales)
-      + fortItem('Estado de ejecución', valueOrPendiente(s.estado_ejecucion))
-      + '</div>';
-    if(s.url_kobo) html += '<div class="riskz-actions"><a class="btn primary" href="'+escapeAttrLocal(s.url_kobo)+'" target="_blank" rel="noopener">Abrir Kobo sensibilización</a></div>';
-    html += '</div>';
+    let html = '<div class="riskz-fort-box"><h4>Fortalecimiento · ficha cantonal dinámica</h4>';
+    html += '<p class="muted-text">La ficha prioriza la lectura que sí cambia por cantón desde el <strong>plan legalizado</strong>. El bloque Kobo queda separado para sensibilización/comités y se marcará como sin registros hasta conectar la exportación real del formulario.</p>';
 
     html += '<div class="riskz-fort-box" style="margin-top:12px"><h4>Plan legalizado · acompañamiento de fortalecimiento para '+escapeHtmlLocal(canton)+'</h4>';
+    html += '<p class="muted-text">Este bloque se recalcula con cada cantón seleccionado. Resume lo que el plan permite usar para priorizar asistencia técnica de CZ5.</p>';
     html += '<div class="riskz-fort-grid">'
+      + fortItemHtml('Prioridad de acompañamiento', prioridad)
       + fortItemHtml('Líneas de fortalecimiento identificadas', listValue(lineasPlan, 'Pendiente de extracción'))
       + fortItemHtml('Brechas para acompañamiento CZ5', listValue(brechasPlan, 'Pendiente de validación'))
       + fortItemHtml('Acciones del plan vinculadas', listValue(accionesPlan, 'Pendiente de extracción específica'))
-      + fortItemHtml('Prioridad de acompañamiento', prioridad)
       + fortItemHtml('Estado documental del plan', ficha ? valueOrPendiente(ficha.estado_documental) : 'Pendiente')
       + fortItemHtml('Condición técnica', ficha ? valueOrPendiente(ficha.condicion_tecnica) : 'Pendiente')
       + fortItemHtml('Monitoreo requerido', listValue(ficha ? ficha.monitoreo : []))
-      + fortItemHtml('Lectura CZ5', valueOrPendiente(s.lectura_fortalecimiento))
-      + fortItemHtml('Siguiente acción CZ5', valueOrPendiente(s.siguiente_accion_cz5))
+      + fortItemHtml('Acción sugerida CZ5', valueOrPendiente(s.siguiente_accion_cz5 || (accionesPlan.length ? accionesPlan[0] : 'Validar líneas de fortalecimiento con el GAD y programar acompañamiento.')))
       + '</div>';
     html += '<div class="riskz-actions"><button class="btn white" type="button" onclick="RiskZonalCZ5.showFortalecimientoSchema()">Ver criterios Fortalecimiento</button></div>';
+    html += '</div>';
+
+    html += '<div class="riskz-fort-box" style="margin-top:12px"><h4>Kobo · sensibilización comunitaria ENOS</h4>';
+    html += '<p class="muted-text"><strong>Estado:</strong> '+escapeHtmlLocal(koboEstadoLectura)+'. Este bloque debe alimentarse con la exportación Kobo para mostrar campañas, público objetivo, sectores, comités y canales por cantón.</p>';
+    html += '<div class="riskz-fort-grid">'
+      + fortItem('Estado del registro Kobo', koboEstadoLectura)
+      + fortItem('Acciones mínimas realizadas', koboConectado ? valueOrPendiente(s.acciones_minimas_sensibilizacion) : 'Pendiente por Kobo')
+      + fortItem('Temáticas de campaña', koboConectado ? temas : 'Pendiente por Kobo')
+      + fortItem('Público objetivo', koboConectado ? publico : 'Pendiente por Kobo')
+      + fortItem('Sectores/comunidades sensibilizadas', koboConectado ? valueOrPendiente(s.sectores_sensibilizados) : 'Pendiente por Kobo')
+      + fortItem('Ubicaciones georreferenciadas', koboConectado ? valueOrPendiente(s.ubicaciones_georreferenciadas) : 'Pendiente por Kobo')
+      + fortItem('Comité comunitario GR', koboConectado ? valueOrPendiente(s.comite_comunitario_gestion_riesgos) : 'Pendiente por Kobo')
+      + fortItem('Representante / teléfono', koboConectado ? valueOrPendiente([s.representante_comite, s.telefono_representante].filter(function(x){return x && x !== 'Pendiente';})) : 'Pendiente por Kobo')
+      + fortItem('Canales de difusión', koboConectado ? canales : 'Pendiente por Kobo')
+      + fortItem('Estado de ejecución', koboConectado ? valueOrPendiente(s.estado_ejecucion) : 'Pendiente por Kobo')
+      + '</div>';
+    if(s.url_kobo) html += '<div class="riskz-actions"><a class="btn primary" href="'+escapeAttrLocal(s.url_kobo)+'" target="_blank" rel="noopener">Abrir Kobo sensibilización</a></div>';
     html += '</div></div>';
     return html;
   }
@@ -3328,6 +3349,14 @@ const RiskZonalCZ5 = (function(){
     setText('riskzKpiBajoLabel', 'Gestores AT');
     setText('riskzKpiBrechasLabel', 'Brechas operativas');
     setText('riskzKpiAmenazaLabel', 'Kobo Respuesta');
+  }
+
+  function updateKpiLabelsFortalecimiento(){
+    setText('riskzKpiAltoLabel', 'Prioridad acomp.');
+    setText('riskzKpiMedioLabel', 'Líneas plan');
+    setText('riskzKpiBajoLabel', 'Brechas CZ5');
+    setText('riskzKpiBrechasLabel', 'Kobo sensib.');
+    setText('riskzKpiAmenazaLabel', 'Estado plan');
   }
 
   return {init:init, selectProvincia:selectProvincia, clearSelection:clearSelection, showSchema:showSchema, renderPanel:renderPanel, setLayerMode:setLayerMode, setElementFilter:setElementFilter, ensureElementsForSelection:ensureElementsForSelection, zoomAll:zoomAll, zoomContinental:zoomContinental, openArcGIS:openArcGIS, openRespuestaKobo:openRespuestaKobo, showRespuestaSchema:showRespuestaSchema, showFortalecimientoSchema:showFortalecimientoSchema, openF03Kobo:openF03Kobo, showAnalisisSchema:showAnalisisSchema, renderPanel:renderPanel};

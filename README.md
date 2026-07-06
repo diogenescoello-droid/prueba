@@ -1,7 +1,7 @@
-# SNGR-CZ5-ENOS v0.6.5
+# SNGR-CZ5-ENOS v0.6.6
 
-Versión de ajuste del módulo **Riesgo Zonal**, enfocada en que la ficha cantonal de **Fortalecimiento** cambie dinámicamente al seleccionar cada cantón.
+Ajuste funcional del módulo Riesgo Zonal. Fortalecimiento ahora prioriza la lectura dinámica por cantón desde el plan legalizado y deja Kobo sensibilización como bloque independiente pendiente de conexión real.
 
-La versión mantiene la arquitectura base e incorpora una lectura separada entre Kobo de sensibilización y datos preliminares extraídos de planes legalizados.
+Archivo principal: `index.html`
 
-Archivo principal: `index.html`.
+Reporte: `REPORTE_AVANCE_v0.6.6.md`
