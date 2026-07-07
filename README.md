@@ -1,19 +1,10 @@
-# SNGR-CZ5-ENOS v0.6.10
+# SNGR-CZ5-ENOS v0.6.11
 
-Versión de ajuste cartográfico del módulo Riesgo Zonal.
+Versión de integración cartográfica real inicial desde adjuntos Kobo/unidad de análisis.
 
-## Enfoque
-
-La versión corrige la lectura del mapa cuando se trabaja con provincias, cantones y elementos F03. Los modos principales ahora son exclusivos para evitar capas superpuestas o filtros heredados que oculten información.
-
-## Archivos principales
-
-- `index.html`
-- `data/riesgo_zonal_arquitectura_v0.6.10.json`
-- `data/criterio_provincial_cartografia_v0.6.10.json`
-- `assets/data/elementos_operativos_enos_v0.6.10.geojson`
-- `REPORTE_AVANCE_v0.6.10.md`
-
-## Nota
-
-La capa F03 contiene 3 elementos demostrativos: punto, línea y polígono. Debe ser reemplazada por la exportación real de Kobo F03 o ArcGIS Online.
+## Cambios principales
+- Se importaron 2.321 elementos cartográficos visibles en la capa web.
+- Geometrías: 13 puntos, 1.863 líneas y 445 polígonos.
+- Se agregó semáforo provincial preliminar de validación cartográfica.
+- Se mantiene diferenciación: dato importado/preliminar ≠ diagnóstico oficial de riesgo físico.
+- Dos KML pesados quedan inventariados como referencia, pero no cargan por defecto para evitar saturación del mapa.
