@@ -1,16 +1,9 @@
-# SNGR-CZ5-ENOS v0.7.3
+# SNGR-CZ5-ENOS v0.7.4
 
-Versión de Fase 2 con plataforma visible al ingresar y acceso restringido visualmente para Dashboard y Riesgo Zonal.
+Versión con acceso a Dashboard y Riesgo Zonal mediante correo institucional + `_ID` F01 importado.
 
-## Flujo de uso
-La plataforma abre directamente en los módulos libres:
+La plataforma pública se mantiene abierta para formularios, generación de prompt, chat institucional y bibliografía. Los módulos sensibles solicitan credenciales.
 
-1. Formularios
-2. Generar prompt
-3. Chat institucional
-4. Bibliografía
+Usuarios F01 incorporados: 51.
 
-Al intentar abrir Dashboard o Riesgo Zonal, se solicita correo institucional y _ID F01 / contraseña.
-
-## Nota de seguridad
-Este control es visual y sirve para validación funcional. No debe usarse como seguridad real para datos sensibles. Para producción se requiere Apps Script, Firebase, Supabase o backend institucional.
+Advertencia: GitHub Pages no es backend seguro. Esta versión es funcional para validación interna, no para protección definitiva de datos sensibles.
