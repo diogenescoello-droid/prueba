@@ -1,14 +1,13 @@
-# SNGR-CZ5-ENOS v0.6.12
+# SNGR-CZ5-ENOS v0.7.0
 
-Versión de ajuste del módulo **Riesgo Zonal** orientada a concordancia, trazabilidad y KPI por enfoque.
+Versión de inicio de Fase 2. Incorpora acceso institucional simulado por jerarquía, matriz de roles y control visual de componentes del módulo Riesgo Zonal.
 
-## Cambios principales
+## Importante
+No es un sistema de seguridad real. Para proteger datos sensibles se requiere backend/autenticación.
 
-- KPI superiores adaptados según enfoque: Resumen, Análisis, Respuesta, Fortalecimiento y Monitoreo.
-- Bloque de trazabilidad del dato en ficha cantonal: fuente, archivo del plan, extracción, validación CZ5, concordancia documental, confianza y fecha de corte.
-- Tarjetas provinciales con lectura explícita de **validación cartográfica**, evitando confundir el semáforo F03 con riesgo físico oficial.
-- Se mantiene la cartografía F03 real inicial importada desde adjuntos Kobo/archivos cartográficos.
+## Archivos clave
 
-## Advertencia técnica
-
-La plataforma muestra datos preliminares derivados de planes PDF/DOCX digitalizados, F03/Kobo y capas cartográficas importadas. Los semáforos de riesgo, validación cartográfica y acompañamiento no sustituyen una validación técnica oficial de la Coordinación Zonal 5.
+- `index.html`
+- `data/perfiles_acceso_v0.7.0.json`
+- `docs/MATRIZ_ROLES_ACCESO_v0.7.0.md`
+- `REPORTE_AVANCE_v0.7.0.md`
