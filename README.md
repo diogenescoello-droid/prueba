@@ -1,10 +1,14 @@
-# SNGR-CZ5-ENOS v0.6.11
+# SNGR-CZ5-ENOS v0.6.12
 
-Versión de integración cartográfica real inicial desde adjuntos Kobo/unidad de análisis.
+Versión de ajuste del módulo **Riesgo Zonal** orientada a concordancia, trazabilidad y KPI por enfoque.
 
 ## Cambios principales
-- Se importaron 2.321 elementos cartográficos visibles en la capa web.
-- Geometrías: 13 puntos, 1.863 líneas y 445 polígonos.
-- Se agregó semáforo provincial preliminar de validación cartográfica.
-- Se mantiene diferenciación: dato importado/preliminar ≠ diagnóstico oficial de riesgo físico.
-- Dos KML pesados quedan inventariados como referencia, pero no cargan por defecto para evitar saturación del mapa.
+
+- KPI superiores adaptados según enfoque: Resumen, Análisis, Respuesta, Fortalecimiento y Monitoreo.
+- Bloque de trazabilidad del dato en ficha cantonal: fuente, archivo del plan, extracción, validación CZ5, concordancia documental, confianza y fecha de corte.
+- Tarjetas provinciales con lectura explícita de **validación cartográfica**, evitando confundir el semáforo F03 con riesgo físico oficial.
+- Se mantiene la cartografía F03 real inicial importada desde adjuntos Kobo/archivos cartográficos.
+
+## Advertencia técnica
+
+La plataforma muestra datos preliminares derivados de planes PDF/DOCX digitalizados, F03/Kobo y capas cartográficas importadas. Los semáforos de riesgo, validación cartográfica y acompañamiento no sustituyen una validación técnica oficial de la Coordinación Zonal 5.
