@@ -1,14 +1,16 @@
-# SNGR-CZ5-ENOS v0.7.2
+# SNGR-CZ5-ENOS v0.7.3
 
-Versión de transición para control de acceso al área de Análisis de Riesgos.
+Versión de Fase 2 con plataforma visible al ingresar y acceso restringido visualmente para Dashboard y Riesgo Zonal.
 
-## Cambios principales
+## Flujo de uso
+La plataforma abre directamente en los módulos libres:
 
-- Acceso simplificado con **correo institucional + _ID F01**.
-- Opción visual para **cambiar contraseña**. En esta versión se guarda solo en el navegador para validar el flujo; en producción debe hacerse en backend.
-- La sesión abre y prioriza el módulo **Riesgo zonal / Análisis de Riesgos**.
-- La autorización sigue siendo visual en GitHub Pages; no protege datos sensibles.
+1. Formularios
+2. Generar prompt
+3. Chat institucional
+4. Bibliografía
 
-## Producción
+Al intentar abrir Dashboard o Riesgo Zonal, se solicita correo institucional y _ID F01 / contraseña.
 
-Para uso real, mover validación de usuario, _ID y contraseña a Apps Script, Firebase, Supabase o backend institucional.
+## Nota de seguridad
+Este control es visual y sirve para validación funcional. No debe usarse como seguridad real para datos sensibles. Para producción se requiere Apps Script, Firebase, Supabase o backend institucional.
