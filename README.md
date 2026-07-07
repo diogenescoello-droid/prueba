@@ -1,11 +1,7 @@
-# SNGR-CZ5-ENOS v0.7.7
+# SNGR-CZ5-ENOS v0.7.8
 
-Versión con acceso interno por credenciales F01 hash para Dashboard y Riesgo Zonal.
+Versión de trabajo con acceso F01 interno y solicitud pública de creación de usuario institucional.
 
-## Flujo
-
-La plataforma abre sin login. Los módulos 1 a 4 permanecen libres. Dashboard y Riesgo Zonal solicitan correo + `_ID` F01 y aplican el alcance territorial del usuario.
-
-## Nota
-
-No publicar el Excel de credenciales en GitHub Pages. La base incluida no contiene correos ni `_ID` en texto plano.
+- Acceso libre: Formularios, Generar prompt, Chat institucional, Bibliografía.
+- Acceso protegido: Dashboard y Riesgo Zonal.
+- Nueva opción: Crear solicitud de usuario, código de solicitud, bandeja local, aprobación manual y plantilla de correo.
