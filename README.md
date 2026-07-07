@@ -1,18 +1,27 @@
-# SNGR-CZ5-ENOS v0.8.2
+# SNGR CZ5 ENOS · v0.8.4
 
-Versión de simplificación UX del módulo Riesgo Zonal. Mantiene el acceso institucional de v0.8.1 y optimiza la lectura inicial mediante preguntas, comentarios breves y flujo guiado por perfil.
+Versión de simplificación cartográfica para el módulo Riesgo Zonal.
 
-## Archivos principales
+## Cambio central
+La barra del mapa fue reducida a cinco controles principales:
 
-- `index.html`
-- `REPORTE_AVANCE_v0.8.2.md`
-- `docs/GUIA_SIMPLIFICACION_UX_v0.8.2.md`
-- `docs/BIBLIOTECA_TECNICA_v0.8.2.md`
+- Provincias
+- Cantones
+- Sitio crítico
+- Infraestructura
+- Elementos cartográficos
 
-## Cambios clave
+Los filtros secundarios y controles avanzados se ocultaron o agruparon para mejorar usabilidad y lectura operativa.
 
-- Menos texto visible.
-- Más preguntas orientadoras.
-- Ayudas cortas por botón.
-- Trazabilidad técnica colapsada.
-- Vista GAD más simple.
+## Archivos clave
+
+- `index.html`: plataforma actualizada.
+- `REPORTE_AVANCE_v0.8.4.md`: registro de cambios.
+- `docs/GUIA_CONTROLES_CARTOGRAFICOS_v0.8.4.md`: guía de uso de la nueva barra cartográfica.
+
+## Nota de seguridad
+Dashboard y Riesgo Zonal mantienen acceso por credenciales. En GitHub Pages el control sigue siendo visual/local; la seguridad real debe implementarse en backend.
+
+
+## v0.8.4
+Se agrega prompt cartográfico compacto para informes desde palabras clave, usando el contexto visible del mapa y sin aumentar la botonera principal.
