@@ -1,13 +1,7 @@
-# SNGR-CZ5-ENOS v0.7.0
+# SNGR-CZ5-ENOS v0.7.1
 
-Versión de inicio de Fase 2. Incorpora acceso institucional simulado por jerarquía, matriz de roles y control visual de componentes del módulo Riesgo Zonal.
+Fase 2: acceso institucional simplificado con lógica F01.
 
-## Importante
-No es un sistema de seguridad real. Para proteger datos sensibles se requiere backend/autenticación.
+La pantalla de ingreso usa correo institucional y cédula registrada en F01. La asignación de rol, organización y alcance territorial queda preparada para resolverse desde la base F01.
 
-## Archivos clave
-
-- `index.html`
-- `data/perfiles_acceso_v0.7.0.json`
-- `docs/MATRIZ_ROLES_ACCESO_v0.7.0.md`
-- `REPORTE_AVANCE_v0.7.0.md`
+Advertencia: versión visual/demostrativa. No publicar cédulas reales en GitHub Pages.
